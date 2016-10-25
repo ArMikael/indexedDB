@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+	<head>
+		<script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+		<script>
+			// Declare Database
+			var db = new Dexie("ValerusDB");
+
+			db.version(2).stores({
+		 		devices: "deviceID, type, name, active",
+		 		panes: "paneID, state, *sizes"
+			});
+
+			// db.devices.add({
+			// 	deviceID: 21323213,
+			// 	type: 'camera',
+			// 	name: 'sony-lineum'
+			// });
+
+			// Interact With Database
+			db.transaction('rw', db.devices, db.panes, function* () {
+
+			    // Let's add some data to db:
+			    var device1Id = yield db.devices.add({ 
+					deviceID: 32423443, 
+					type: 'camera', 
+					name: 'sony-lineum', 
+					active: true
+				});
+
+			    var device2Id = yield db.devices.add({ 
+					deviceID: 21323213, 
+					type: 'nvr', 
+					name: 'toshiba-creator',
+					active: false
+				});
+
+			    var pane = yield db.panes.add({
+			        paneID: 122313,
+			        state: 'active',
+			        sizes: ['400px', '600px']
+			    });
+
+			    // Let's query the db
+			    var activeDevices = yield db.devices
+			        .where('active').equals(true)
+			        .toArray();
+
+			    console.log("Active Devicess: " + activeDevices.map(device => device.name));
+
+			    var panes = yield db.panes
+			        .where('state').startsWithIgnoreCase('active')
+			        .toArray();
+
+			    console.log("Panes list: " + panes.map(pane => pane.sizes));
+
+			}).catch(function(err) {
+
+			    // Catch any error event or exception and log it:
+			    // console.error(err.stack || err);
+			});
+
+		</script>
+	</head>
+</html>
