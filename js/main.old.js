@@ -10,7 +10,7 @@
 	// Type in browser console: indexedDB.deleteDatabase("valerusDB") 
 
 	if (indexedDB) {
-		var request = indexedDB.open('valerusDB', 10);
+		var request = indexedDB.open('valerusDB', 9);
 		var valDB;
 
 		request.onerror = function(err) {
@@ -18,25 +18,23 @@
 		};
 
 		request.onsuccess = function(event) {
-			var devID = '10.10.16.95';
+			var devID = '140.20.162.33';
 			var devName = 'vicon-nvr';
 			var newDevice = {
-					deviceID: '10.20.30.101',
+					deviceID: '10.20.30.99',
 					type: 'cam',
-					name: 'riche-cam'
+					name: 'simco-cam'
 				};
 
 			valDB = event.target.result;
-			// var devStore = valDB.transaction(["devices"], "readwrite").objectStore("devices");
 
-
-			// getDevice(devStore, devID);
-			// shortGetDevice(devStore, devID);
-			// getDeviceByName(devStore, devName);
-			// addDevice(devStore, newDevice); // Return error if the key is already exist
-			// setDevice(devStore, newDevice); // Updates existing key if it is already exist in db
-			// removeDevice(devStore, devID);
-			// getAllDevices(devStore);
+			getDevice(valDB, devID);
+			shortGetDevice(valDB, devID);
+			getDeviceByName(valDB, devName);
+			addDevice(valDB, newDevice); // Return error if the key is already exist
+			// setDevice(valDB, newDevice); // Updates existing key if it is already exist in db
+			// removeDevice(valDB, devID);
+			getAllDevices(valDB);
 		};
 
 		request.onupgradeneeded = function(event) { 
@@ -81,68 +79,43 @@
 
 
 		// Getting data from database 
-		function getDevice(devStore, devID) {
-			var request = devStore.get(devID);
+		function getDevice(db, devID) {
+			var transaction = db.transaction(["devices"], "readonly");
+			var objectStore = transaction.objectStore("devices");
+			var request = objectStore.get(devID);
+
+			request.onerror = function(err) {
+				console.log('Error: ', err.target.error);
+			};
 
 			request.onsuccess = function(event) {
 				console.log('Get Device success: ', request.result.name);
 			};
-
-			request.onerror = function(err) {
-				console.log('Error: ', err.target.error);
-			};
 		};
 
 		// Shorter version of getting data
-		function shortGetDevice(devStore, devID) {
-			devStore.get(devID).onsuccess = function(event) {
+		function shortGetDevice(db, devID) {
+			db.transaction("devices").objectStore("devices").get(devID).onsuccess = function(event) {
 				console.log("Name for devicesID " + devID + " is " + event.target.result.name);
-			};
-
-			devStore.get(devID).onerror = function(event) {
-				console.log('Error: ', err.target.error);
 			};
 		};
 
 		// Get device by name
-		function getDeviceByName(devStore, devName) {
-			var index = devStore.index("name");
+		function getDeviceByName(db, devName) {
+			var transaction = db.transaction(["devices"], "readonly");
+			var objectStore = transaction.objectStore("devices");
+			var index = objectStore.index("name");
 
 			index.get(devName).onsuccess = function(event) {
-				console.log("Got device by name: " + devName + " ID is: " + event.target.result.deviceID);
+				console.log(devName + " ID is: " + event.target.result.deviceID);
 			};
 		};
-
-		// Setting new device to database (If key already exist - return error)
-		function addDevice(devStore, devObj) {
-			var request = devStore.add(devObj); 
-
-			request.onsuccess = function(event) {
-				console.log('Adding device is completed: ' + event.target.result);
-			};
-
-			request.onerror = function(err) {
-				console.log('Error: ', err.target.error);
-			};
-		};
-
-		// Setting new device to database (If key already exist - update existing key)
-		function setDevice(devStore, devObj) {
-			var request = devStore.put(devObj); 
-
-			request.onsuccess = function(event) {
-				console.log('Setting device is completed: ' + event.target.result);
-			};
-
-			request.onerror = function(err) {
-				console.log('Error: ', err.target.error);
-			};
-		};
-
 
 		// Removing objects from DB
-		function removeDevice(devStore, devID) {
-			var request = devStore.delete(devID);
+		function removeDevice(db, devID) {
+			var request = db.transaction(["devices"], "readwrite")
+	            .objectStore("devices")
+	            .delete(devID);
 
 			request.onsuccess = function(event) {
 				// event.target.result doesn't works, because the device is already deleted
@@ -154,12 +127,43 @@
 			};
 		};
 
+		// Setting new device to database (If key already exist - return error)
+		function addDevice(db, devObj) {
+			var request = db.transaction(["devices"], "readwrite")
+	            .objectStore("devices")
+	            .add(devObj); 
+
+			request.onsuccess = function(event) {
+				console.log('Adding device is completed: ' + event.target.result);
+			};
+
+			request.onerror = function(err) {
+				console.log('Error: ', err.target.error);
+			};
+		};
+
+		// Setting new device to database (If key already exist - update existing key)
+		function setDevice(db, devObj) {
+			var request = db.transaction(["devices"], "readwrite")
+	            .objectStore("devices")
+	            .put(devObj); 
+
+			request.onsuccess = function(event) {
+				console.log('Setting device is completed: ' + event.target.result);
+			};
+
+			request.onerror = function(err) {
+				console.log('Error: ', err.target.error);
+			};
+		};
 
 		// Get all devices using Cursor() method
-		function getAllDevices(objStore) {
+		function getAllDevices(db) {
 			var devices = [];
 
-			objStore.openCursor().onsuccess = function(event) {
+			var devStore = db.transaction(["devices"], "readwrite").objectStore("devices");
+
+			devStore.openCursor().onsuccess = function(event) {
 				var cursor = event.target.result;
 
 				if (cursor) {
@@ -173,6 +177,7 @@
 		};
 
 	}
+
 
 
 })();

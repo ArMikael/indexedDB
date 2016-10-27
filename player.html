@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Valerus PLayer</title>
+</head>
+<body>
+    <h1>Valerus Player</h1>
+    <div id="container">Container</div>
+
+
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script>
+        var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+        var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
+
+        console.log('IndexedDB support: ', indexedDB);
+
+        if (indexedDB) {
+            var request = indexedDB.open('valerusDB', 10);
+            var valDB;
+            
+
+            request.onerror = function(err) {
+                console.log('Error: ', err.target.error);
+            };
+
+            request.onsuccess = function(event) {
+                valDB = event.target.result;
+                var devStore = valDB.transaction(["devices"], "readwrite").objectStore("devices");
+
+                getAllDevices(devStore);
+            };
+
+
+            // Get all devices using Cursor() method
+            function getAllDevices(objStore) {
+                var devices = [];
+
+                objStore.openCursor().onsuccess = function(event) {
+                    var cursor = event.target.result;
+                    var container = $('#container');
+
+                    if (cursor) {
+                        console.log(cursor.value);
+                        var device = cursor.value.deviceID;
+                        devices.push(cursor.value);
+                        // $(cursor.value).appentTo(devicesDOM);
+                        cursor.continue();
+                    } else {
+                        var devicedDOM = JSON.stringify(devices);
+                        $(container).html(devicedDOM);
+
+                        console.log("Got all devices: " + JSON.stringify(devices));
+                    }
+
+                };
+            };
+
+        }
+
+    </script>
+</body>
+</html>
