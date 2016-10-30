@@ -1,6 +1,8 @@
 (function(){
 	'use strict';
 
+	var startTime = new Date();
+
 	var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
 	var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
 
@@ -10,7 +12,7 @@
 	// Type in browser console: indexedDB.deleteDatabase("valerusDB") 
 
 	if (indexedDB) {
-		var request = indexedDB.open('valerusDB', 10);
+		var request = indexedDB.open('valerDB', 1);
 		var valDB;
 
 		request.onerror = function(err) {
@@ -18,20 +20,20 @@
 		};
 
 		request.onsuccess = function(event) {
-			var devID = '140.20.162.33';
-			var devName = 'vicon-nvr';
-			var newDevice = {
-					deviceID: '10.20.30.99',
-					type: 'cam',
-					name: 'simco-cam'
-				};
+			// var devID = '140.20.162.33';
+			// var devName = 'vicon-nvr';
+			// var newDevice = {
+			// 		deviceID: '10.20.30.99',
+			// 		type: 'cam',
+			// 		name: 'simco-cam'
+			// 	};
 
 			valDB = event.target.result;
 
-			getDevice(valDB, devID);
-			shortGetDevice(valDB, devID);
-			getDeviceByName(valDB, devName);
-			addDevice(valDB, newDevice); // Return error if the key is already exist
+			// getDevice(valDB, devID);
+			// shortGetDevice(valDB, devID);
+			// getDeviceByName(valDB, devName);
+			// addDevice(valDB, newDevice); // Return error if the key is already exist
 			// setDevice(valDB, newDevice); // Updates existing key if it is already exist in db
 			// removeDevice(valDB, devID);
 			getAllDevices(valDB);
@@ -66,11 +68,28 @@
 			objectStore.transaction.oncomplete = function(event) {
 				var devicesObjectStore = valDB.transaction('devices', 'readwrite').objectStore('devices');
 
-				for (var dev in devices) {
+			/*	for (var dev in devices) {
 					devicesObjectStore.add(devices[dev]);
 				};
 
-				console.log('Transaction completed');
+			*/
+				var devicesObj;
+
+				for(var i = 0; i < 10000; i++) {
+					devicesObj = {
+						deviceID: 'id' + i,
+						type: 'camera' + i,
+						name: 'sony-lineum' + i
+					};
+
+					devicesObjectStore.add(devicesObj);
+				}
+
+				var endTime = new Date();
+
+				var totalWritingTime = endTime - startTime;
+
+				console.log('Transaction completed in ' + totalWritingTime + " ms");
 			};
 
 			// console.log(objectStore);
@@ -166,13 +185,21 @@
 
 			devStore.openCursor().onsuccess = function(event) {
 				var cursor = event.target.result;
+				var container = $('#data');
 
 				if (cursor) {
 					console.log(cursor.value);
 					devices.push(cursor.value);
 					cursor.continue();
 				} else {
-					console.log("Got all devices: " + devices);
+                   // var devicedDOM = JSON.stringify(devices);
+                   // $(container).html(devicedDOM);
+
+					for (var obj in devices) {
+                        $(container).append(devices[obj].name + " - " + devices[obj].type + " - " + devices[obj].deviceID + "<br>");
+                    }
+
+					// console.log("Got all devices: " + devices);
 				}
 			};
 		};

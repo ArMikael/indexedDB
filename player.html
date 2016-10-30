@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Valerus PLayer</title>
+    <script>
+        var startTime = new Date();
+    </script>
 </head>
 <body>
     <h1>Valerus Player</h1>
@@ -17,7 +20,7 @@
         console.log('IndexedDB support: ', indexedDB);
 
         if (indexedDB) {
-            var request = indexedDB.open('valerusDB', 10);
+            var request = indexedDB.open('valerusDB', 11);
             var valDB;
             
 
@@ -42,16 +45,26 @@
                     var container = $('#container');
 
                     if (cursor) {
-                        console.log(cursor.value);
+                     //   console.log(cursor.value);
                         var device = cursor.value.deviceID;
                         devices.push(cursor.value);
                         // $(cursor.value).appentTo(devicesDOM);
                         cursor.continue();
                     } else {
-                        var devicedDOM = JSON.stringify(devices);
-                        $(container).html(devicedDOM);
+                        var endTime = new Date();
+                        
+                        var v = endTime - startTime;
 
-                        console.log("Got all devices: " + JSON.stringify(devices));
+                        //var devicedDOM = JSON.stringify(devices);
+                        document.write(v);
+                /*        for(var obj in devices)
+                        {
+                            document.write(devices[obj].name + " - " + devices[obj].type + " - " + devices[obj].deviceID + "<br>");
+                        }
+*/
+                        //$(container).html(devicedDOM);
+
+                      //  console.log("Got all devices: " + JSON.stringify(devices));
                     }
 
                 };
