@@ -1,8 +1,6 @@
 (function(){
 	'use strict';
 
-	var startTime = new Date();
-
 	var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
 	var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
 
@@ -12,7 +10,7 @@
 	// Type in browser console: indexedDB.deleteDatabase("valerusDB") 
 
 	if (indexedDB) {
-		var request = indexedDB.open('valerDB', 1);
+		var request = indexedDB.open('valerDB', 2);
 		var valDB;
 
 		request.onerror = function(err) {
@@ -42,20 +40,11 @@
 		request.onupgradeneeded = function(event) { 
 			valDB = event.target.result;
 			var target = event.target;
+			var allStores = ['devices', 'cameras', 'nvrs', 'streams', 'resources', 'ptzs', 'users', 'instances'];
 
-			var devices = [{
-					deviceID: '122.13.16.192',
-					type: 'camera',
-					name: 'sony-lineum'
-				}, {
-					deviceID: '140.20.162.33',
-					type: 'camera',
-					name: 'sharp-ostro'
-				}, {
-					deviceID: '10.10.16.95',
-					type: 'nvr',
-					name: 'vicon-nvr'
-				}];
+			for (var store in allStores) {
+				console.log(allStores[store]);
+			}
 
 
 			// Creating objectStores for this database - alternative to tables in nosql databases
@@ -70,19 +59,18 @@
 
 			/*	for (var dev in devices) {
 					devicesObjectStore.add(devices[dev]);
-				};
-
+				}; 
 			*/
 				var devicesObj;
 
-				for(var i = 0; i < 10000; i++) {
+				for(var i = 0; i < 200000; i++) {
 					devicesObj = {
 						deviceID: 'id' + i,
 						type: 'camera' + i,
 						name: 'sony-lineum' + i
 					};
 
-					devicesObjectStore.add(devicesObj);
+					devicesObjectStore.put(devicesObj);
 				}
 
 				var endTime = new Date();
@@ -188,7 +176,7 @@
 				var container = $('#data');
 
 				if (cursor) {
-					console.log(cursor.value);
+					// console.log(cursor.value);
 					devices.push(cursor.value);
 					cursor.continue();
 				} else {

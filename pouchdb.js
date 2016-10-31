@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>PouchDB</title>
+</head>
+<body>
+	<h1>PouchDB</h1>
+
+	<script src="js/pouchdb-6.0.7.js"></script>
+</body>
+</html>

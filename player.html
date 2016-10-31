@@ -20,7 +20,7 @@
         console.log('IndexedDB support: ', indexedDB);
 
         if (indexedDB) {
-            var request = indexedDB.open('valerusDB', 11);
+            var request = indexedDB.open('valerDB', 2);
             var valDB;
             
 
@@ -57,11 +57,10 @@
 
                         //var devicedDOM = JSON.stringify(devices);
                         document.write(v);
-                /*        for(var obj in devices)
-                        {
+                        for(var obj in devices) {
                             document.write(devices[obj].name + " - " + devices[obj].type + " - " + devices[obj].deviceID + "<br>");
                         }
-*/
+
                         //$(container).html(devicedDOM);
 
                       //  console.log("Got all devices: " + JSON.stringify(devices));
