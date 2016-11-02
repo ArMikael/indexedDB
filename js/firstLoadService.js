@@ -3,24 +3,25 @@ function fnMainResolve(response) {
     function saveToIndexedDb(_globalData) {
     	var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
 
-        //var globalPropertiesList = Object.getOwnPropertyNames(_globalData);
+        var globalPropertiesList = Object.getOwnPropertyNames(_globalData);
 
-        //globalPropertiesList.forEach(function(key) {
-        //    var currentData = _globalData[key];
-        //    console.log("the key is: " + key);
-        //    if (currentData) {
-        //        if (!currentData.list) {
-        //            console.log(currentData);
-        //            return;
-        //        }
-        //        for (var resourceId in currentData) {
-        //            if (typeof currentData[resourceId] !== 'function') {
-        //                console.log(currentData[resourceId]);
-        //            }
+        globalPropertiesList.forEach(function(key) {
+           var currentData = _globalData[key];
+           console.log("the key is: " + key);
+           if (currentData) {
+               if (!currentData.list) {
+                   console.log(currentData);
+                   return;
+               }
+               for (var resourceId in currentData) {
+                   if (typeof currentData[resourceId] !== 'function') {
+                       console.log(currentData[resourceId]);
+                   }
 
-        //        }
-        //    }
-        //});
+               }
+           }
+        });
+
 
         var startIndexDb = new Date();
 
