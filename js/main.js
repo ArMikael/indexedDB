@@ -2,7 +2,7 @@
 	'use strict';
 
 	var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
-	var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
+	// var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
 
 	console.log('IndexedDB support: ', indexedDB);
 
@@ -39,7 +39,7 @@
 
 		request.onupgradeneeded = function(event) { 
 			valDB = event.target.result;
-			var target = event.target;
+			// var target = event.target;
 			var allStores = ['devices', 'cameras', 'nvrs', 'streams', 'resources', 'ptzs', 'users', 'instances'];
 
 			for (var store in allStores) {
@@ -63,7 +63,7 @@
 			*/
 				var devicesObj;
 
-				for(var i = 0; i < 200000; i++) {
+				for(var i = 0; i < 1000000; i++) {
 					devicesObj = {
 						deviceID: 'id' + i,
 						type: 'camera' + i,
@@ -177,15 +177,15 @@
 
 				if (cursor) {
 					// console.log(cursor.value);
-					devices.push(cursor.value);
+					devices.push(cursor.value); // Check if there is an option to get all items in one 
 					cursor.continue();
 				} else {
                    // var devicedDOM = JSON.stringify(devices);
                    // $(container).html(devicedDOM);
 
-					for (var obj in devices) {
-                        $(container).append(devices[obj].name + " - " + devices[obj].type + " - " + devices[obj].deviceID + "<br>");
-                    }
+					// for (var obj in devices) {
+     //                    $(container).append(devices[obj].name + " - " + devices[obj].type + " - " + devices[obj].deviceID + "<br>");
+     //                }
 
 					// console.log("Got all devices: " + devices);
 				}
