@@ -1,55 +1,69 @@
+function fnMainResolve(response) {
 
-request.onupgradeneeded = function (event) {
-       var devices = _globalData['devices'].list;
-       console.log(devices);
+    function saveToIndexedDb(_globalData) {
+    	var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
 
-       valDB = event.target.result;
+        //var globalPropertiesList = Object.getOwnPropertyNames(_globalData);
 
-       var objectStore = valDB.createObjectStore("devices", { keyPath: "id" });
+        //globalPropertiesList.forEach(function(key) {
+        //    var currentData = _globalData[key];
+        //    console.log("the key is: " + key);
+        //    if (currentData) {
+        //        if (!currentData.list) {
+        //            console.log(currentData);
+        //            return;
+        //        }
+        //        for (var resourceId in currentData) {
+        //            if (typeof currentData[resourceId] !== 'function') {
+        //                console.log(currentData[resourceId]);
+        //            }
 
-       //for (var i = 0; i < devices.length; i++) {
-       //    var device = devices[i];
+        //        }
+        //    }
+        //});
 
-       //    for (var prop in device) {
-       //        console.log(prop, prop.value);
-       //        objectStore.createIndex(prop, prop, { unique: false });
-       //    }          
-       //}
+        var startIndexDb = new Date();
 
-       objectStore.createIndex("id", "id", { unique: true });
-       objectStore.createIndex("name", "name", { unique: false });
-       objectStore.createIndex("vendor", "vendor", { unique: false });
-       objectStore.createIndex("model", "model", { unique: false });
-       objectStore.createIndex("firmware", "firmware", { unique: false });
-       objectStore.createIndex("children", "children", { unique: false });
-       objectStore.createIndex("credentials", "credentials", { unique: false });
-       objectStore.createIndex("curCredentials", "curCredentials", { unique: false });
-       objectStore.createIndex("enabled", "enabled", { unique: false });
-       objectStore.createIndex("host", "host", { unique: false });
-       objectStore.createIndex("httpsEnabled", "httpsEnabled", { unique: false });
-       objectStore.createIndex("macAddr", "macAddr", { unique: false });
-       objectStore.createIndex("parentId", "parentId", { unique: false });
-       objectStore.createIndex("port", "port", { unique: false });
-       objectStore.createIndex("providerId", "providerId", { unique: false });
-       objectStore.createIndex("providerName", "providerName", { unique: false });
-       objectStore.createIndex("serverType", "serverType", { unique: false });
-       objectStore.createIndex("state", "state", { unique: false });
-       objectStore.createIndex("version", "version", { unique: false });
-       objectStore.createIndex("viewName", "viewName", { unique: false });
+        if (indexedDB) {
+            var request = indexedDB.open('test3DB', 1);
+            var valDB;
 
-       objectStore.transaction.oncomplete = function (event) {
-           var devicesObjStore = valDB.transaction('devices', 'readwrite')
-               .objectStore('devices');
+            request.onerror = function (err) {
+                console.log('Error: ', err.target.error);
+            };
 
-           for (var i = 0; i < devices.length; i++) {
-               devicesObjStore.put(devices[i]);
-               console.log(devices[i]);
-           }
+            request.onsuccess = function (event) {
+                valDB = event.target.result;
 
-           var endIndexDb = new Date();
+                //getAllDevices(valDB);
+            };
 
-           var totalTime = endIndexDb - startIndexDb;
-           console.log('Writing devices to indexedDB is completed. Total time: ' + totalTime + " ms");
-       }
+            request.onupgradeneeded = function (event) {
+                var resourcesList = ["devices", "exportList", "nvrs", "proxys", "schedules", "rules"];
+                valDB = event.target.result;
 
-};
+                for (var item = 0; item < resourcesList.length; item++) {
+                    var listName = resourcesList[item];
+                    var currentList = _globalData[listName].list;
+                    var objectStore = valDB.createObjectStore(listName, { keyPath: "id" });
+
+                    objectStore.createIndex("id", "id", { unique: true });
+
+                    for (var i = 0; i < currentList.length; i++) {
+                        objectStore.put(currentList[i]);
+                        console.log(currentList[i]);
+                    }
+                }
+
+                var endIndexDb = new Date();
+
+                var totalTime = endIndexDb - startIndexDb;
+                console.log('Writing devices to indexedDB is completed. Total time: ' + totalTime + " ms");
+
+                // streams -byGuid
+            }
+        } 
+    };
+
+    saveToIndexedDb(globalDataAccessPoint);
+}
