@@ -10,7 +10,7 @@
 	// Type in browser console: indexedDB.deleteDatabase("valerusDB") 
 
 	if (indexedDB) {
-		var request = indexedDB.open('valerDB', 2);
+		var request = indexedDB.open('valerDB', 3);
 		var valDB;
 
 		request.onerror = function(err) {
@@ -42,8 +42,17 @@
 			// var target = event.target;
 			var allStores = ['devices', 'cameras', 'nvrs', 'streams', 'resources', 'ptzs', 'users', 'instances'];
 
+			var resourcesObjectStore = valDB.createObjectStore("resources", {keyPath: "id"});
+			resourcesObjectStore.createIndex("key", "key", { unique: false });
+
 			for (var store in allStores) {
-				console.log(allStores[store]);
+				var newObj = Object.create(null);
+				newObj.id = 'uid_' + store;
+				newObj.key = allStores[store];
+
+				resourcesObjectStore.put(newObj);
+
+				console.log(newObj);
 			}
 
 
@@ -63,7 +72,7 @@
 			*/
 				var devicesObj;
 
-				for(var i = 0; i < 1000000; i++) {
+				for(var i = 0; i < 20000; i++) {
 					devicesObj = {
 						deviceID: 'id' + i,
 						type: 'camera' + i,
@@ -78,10 +87,34 @@
 				var totalWritingTime = endTime - startTime;
 
 				console.log('Transaction completed in ' + totalWritingTime + " ms");
+
+
+				// Clean objectStore in database
+				function cleanObjStore() {
+					console.log("removeObjStore");
+
+					var objectStoreRequest = devicesObjectStore.clear();
+
+					objectStoreRequest.onsuccess = function(event) {
+						console.log('Devices objectStore is removed');
+					}
+				}
+
+				//cleanObjStore();
 			};
+
+			// Remove objectStore from database
+			function removeObjStore(db, objStore) {
+				db.deleteObjectStore(objStore);
+
+				console.log(objStore + ' objectStore was deleted.')
+			}
+
+			removeObjStore(valDB, "resources");
 
 			// console.log(objectStore);
 			console.log(valDB.objectStoreNames); // objectStoreNames - list of all objectStores in indexedDB
+
 		};
 
 
